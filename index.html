@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>web-socket-mqtt</title>
+    <style type="text/css">
+      #log {
+        width: 95%;
+        height: 400px;
+        overflow: auto;
+        border: 1px solid burlywood;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Log</h2>
+    <ul id="log"></ul>
+
+    <script src="./mqtt"></script>
+    <script>
+      console.log(document.location.protocol);
+      var client = mqtt.connect(
+        (document.location.protocol === "http:" ? "ws" : "wss") +
+          "://" +
+          document.location.hostname +
+          "/mqtt"
+      );
+      client.subscribe("log");
+
+      client.on("message", function(topic, message) {
+        context = message.toString();
+        console.log(topic, context);
+        
+        var log = document.getElementById("log");
+        
+        var entry = document.createElement("li");
+        entry.innerText = [topic, context].join(": ");
+        log.appendChild(entry);
+        
+        var entries = log.getElementsByTagName("li");
+        while (entries.length >= 1000) {
+          log.removeChild(entries[0]);
+        }
+
+        log.scrollTo(0, log.scrollHeight);
+      });
+    </script>
+  </body>
+</html>
